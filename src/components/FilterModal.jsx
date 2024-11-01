@@ -55,10 +55,6 @@ const FilterModal = ({
         setIsFilterVisible(false);
     }
 
-    useEffect(() => {
-        console.log(filter);
-    }, [filter])
-
     return(
         <div className="flex flex-col relative w-full md:w-[32rem] bg-white rounded shadow-md inset-x-0 mx-auto">
             <div className="flex justify-between items-center bg-gray-100 border-b rounded-t p-3">

@@ -2,17 +2,17 @@ import "../src/App.css"
 import "leaflet/dist/leaflet.css"
 import { useEffect, useState } from "react";
 import InfiniteScroll from 'react-infinite-scroll-component';
-import Map from "./components/Map";
 import FilterModal from "./components/FilterModal";
 import { FaBars, FaClock, FaFilter, FaTaxi, FaUser } from "react-icons/fa6";
 import { FaTimes } from "react-icons/fa";
+import Sidebar from "./components/Sidebar";
+import Row from "./components/Row";
 
 function App() {
   const [trips, setTrips] = useState([]);
-  const [trip, setTrip] = useState();
+  const [tripActive, setTripActive] = useState(null);
   const [page, setPage] = useState(1);
   const itemsPerPage = 50;
-  const [tripActive, setTripActive] = useState(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isSidebarActive, setIsSidebarActive] = useState(false);
 
@@ -64,29 +64,6 @@ function App() {
     fetchData(page + 1);
   };
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    
-    return date.toLocaleString('en-US', {
-        weekday: 'long',       // Thursday
-        year: 'numeric',       // 2011
-        month: 'long',         // March
-        day: 'numeric',        // 9
-        hour: 'numeric',       // 08
-        minute: 'numeric',     // 57
-        hour12: true           // PM
-    });
-};
-
-  const handleShowTrip = (id, data) => {
-    if (tripActive !== id) {
-        setTripActive(id);
-        setTrip(data);
-    } else {
-        setTripActive(null);
-    } 
-  };
-
   return (
     <div className="flex flex-1 min-h-screen bg-white">
       {isFilterVisible &&
@@ -101,24 +78,11 @@ function App() {
           />
         </div>
       }
-      <div className={`${isSidebarActive ? ("") : ("hidden")} fixed lg:relative lg:flex w-80 h-full lg:h-auto bg-white border-r`}>
-        <div className="flex flex-col gap-5 p-5">
-          <div className="flex lg:hidden justify-end w-full">
-            <button onClick={() => setIsSidebarActive(false)}><FaTimes /></button>
-          </div>
-          <div id="navbar-brand" className="cursor-pointer">
-            <img src="../nyc-tlc-logo.svg" alt="logo" />
-          </div>
-          <ul className="flex flex-col gap-2 font-semibold">
-            <li className="flex items-center gap-3 bg-gray-200 rounded px-5 py-2"><FaTaxi className="text-sm" />Trips</li>
-            <li className="flex items-center gap-3 hover:bg-gray-200 rounded px-5 py-2"><FaUser className="text-sm" />Users</li>
-          </ul>
-        </div>
-      </div>
-      <div className="flex flex-col gap-5 w-full max-h-screen p-5 lg:p-10">
+      <Sidebar isSidebarActive={isSidebarActive} setIsSidebarActive={setIsSidebarActive} />
+      <div className={`${isSidebarActive ? ("blur") : ("")} flex flex-col gap-5 w-full max-h-screen p-5 lg:p-10`}>
         <div className="flex justify-between items-center">
-          <div className="flex lg:hidden items-center gap-3">
-            <button onClick={() => setIsSidebarActive(true)} className="border rounded shadow p-2"><FaBars/></button>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setIsSidebarActive(true)} className="flex lg:hidden border rounded shadow p-2"><FaBars/></button>
             <h2 className="text-2xl font-bold">Trips</h2>
           </div>
           <button onClick={() => setIsFilterVisible(true)} className=" flex items-center gap-2 bg-white border rounded-sm shadow text-sm font-medium px-5 py-2"><FaFilter />Filters</button>
@@ -138,45 +102,9 @@ function App() {
             loader={
               <div className="flex flex-1 border-x border-b p-3 font-bold justify-center">Loading...</div>
             }
-            scrollableTarget="scrollableDiv"
           >
             {trips.map((item, index) => (
-              <div key={index}>
-                <div className="flex flex-row gap-3 border-x border-b p-3 cursor-pointer text-center" onClick={() => handleShowTrip(index, item)}>
-                  <div className="basis-1/12">{index + 1}</div>
-                  <div className="basis-2/12">{item.vendor_id}</div>
-                  <div className="basis-3/12">{parseFloat(item.trip_distance).toFixed(2)} mil</div>
-                  <div className="basis-4/12">{formatDate(item.pickup_datetime)}</div>
-                  <div className="basis-2/12">{item.payment_type}</div>
-                </div>
-                {tripActive === index &&
-                  <div className="flex lg:min-h-80 bg-gray-50 border-x border-b px-20 py-5 shadow-inner">
-                    <div className="flex flex-col lg:grid lg:grid-cols-2 gap-3 w-full">
-                      <div className="flex flex-col">
-                        <div className="flex flex-col mb-3">
-                          <div className="text-4xl font-bold">${item.fare_amount} <span className="text-base font-normal">({parseFloat(item.trip_distance).toFixed(2)} mil)</span></div>
-                          <div className="text-sm font-light">${item.mta_tax} (Tax)</div>
-                          <div className="text-sm font-light">${item.imp_surcharge} (Charge)</div>
-                          <div className="text-sm font-light">${item.total_amount} (Total Amount)</div>
-                        </div>
-                        <div className="flex gap-3 items-center">
-                          <FaClock className="text-green-500" />
-                          {formatDate(item.pickup_datetime)}
-                        </div>
-                        <div className="flex gap-3 items-center">
-                          <FaClock className="text-red-500" />
-                          {formatDate(item.dropoff_datetime)}
-                        </div>
-                      </div>
-                      <div className="flex">
-                        <div className="w-full h-full min-h-64">
-                          <Map data={trip} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-              </div>
+              <Row data={item} index={index} tripActive={tripActive} setTripActive={setTripActive} />
             ))}
           </InfiniteScroll>
         </div>
