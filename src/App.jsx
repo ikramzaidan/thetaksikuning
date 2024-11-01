@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Map from "./components/Map";
 import FilterModal from "./components/FilterModal";
-import { FaClock, FaFilter, FaTaxi, FaUser } from "react-icons/fa6";
+import { FaBars, FaClock, FaFilter, FaTaxi, FaUser } from "react-icons/fa6";
+import { FaTimes } from "react-icons/fa";
 
 function App() {
   const [trips, setTrips] = useState([]);
@@ -13,6 +14,7 @@ function App() {
   const itemsPerPage = 50;
   const [tripActive, setTripActive] = useState(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [isSidebarActive, setIsSidebarActive] = useState(false);
 
   // Filter states
   const [pickupFilter, setPickupFilter] = useState("");
@@ -99,8 +101,11 @@ function App() {
           />
         </div>
       }
-      <div className="hidden lg:flex w-80 h-auto border-r">
+      <div className={`${isSidebarActive ? ("") : ("hidden")} fixed lg:relative lg:flex w-80 h-full lg:h-auto bg-white border-r`}>
         <div className="flex flex-col gap-5 p-5">
+          <div className="flex lg:hidden justify-end w-full">
+            <button onClick={() => setIsSidebarActive(false)}><FaTimes /></button>
+          </div>
           <div id="navbar-brand" className="cursor-pointer">
             <img src="../nyc-tlc-logo.svg" alt="logo" />
           </div>
@@ -112,8 +117,11 @@ function App() {
       </div>
       <div className="flex flex-col gap-5 w-full max-h-screen p-5 lg:p-10">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Trips</h2>
-          <button onClick={() => setIsFilterVisible(true)} className=" flex items-center gap-2 bg-white border rounded-sm shadow-md text-sm font-medium px-5 py-2"><FaFilter />Filters</button>
+          <div className="flex lg:hidden items-center gap-3">
+            <button onClick={() => setIsSidebarActive(true)} className="border rounded shadow p-2"><FaBars/></button>
+            <h2 className="text-2xl font-bold">Trips</h2>
+          </div>
+          <button onClick={() => setIsFilterVisible(true)} className=" flex items-center gap-2 bg-white border rounded-sm shadow text-sm font-medium px-5 py-2"><FaFilter />Filters</button>
         </div>
         <div id="scrollableDiv" className="flex flex-col w-full h-full overflow-auto">
           <div className="flex flex-row gap-3 border p-3 font-bold text-center">
